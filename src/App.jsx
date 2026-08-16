@@ -1,40 +1,46 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';           // We'll create later
-import Register from './pages/Register';     // We'll create later
-import AdminLayout from './pages/admin/AdminLayout';
-import Dashboard from './pages/admin/Dashboard';
-import StoreManagement from './pages/admin/StoreManagement';
-import MedicineCatalog from './pages/admin/MedicineCatalog';
-import ComplaintManagement from './pages/admin/ComplaintManagement';
-import ShortageHeatmap from './pages/admin/ShortageHeatmap';
-import PriceAnomalyReport from './pages/admin/PriceAnomalyReport';
-import Reports from './pages/admin/Reports';
-import UserManagement from './pages/admin/UserManagement';
-import Profile from './pages/admin/Profile';
+import PublicHeader from './components/public/PublicHeader';
+import Footer from './components/public/Footer';
+import LandingPage from './pages/public/LandingPage';
+import Login from './pages/Login';          // we'll create later
+// import Register from './pages/Register';    // we'll create later
+// import AdminLayout from './pages/admin/AdminLayout';
+// import Dashboard from './pages/admin/Dashboard';
+// ... other admin imports
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* Public routes with header/footer */}
+        <Route path="/" element={
+          <>
+            <PublicHeader />
+            <LandingPage />
+            <Footer />
+          </>
+        } />
+        <Route path="/login" element={
+          <>
+            <PublicHeader />
+            <Login />
+            <Footer />
+          </>
+        } />
+        <Route path="/register" element={
+          <>
+            <PublicHeader />
+            {/* <Register /> */}
+            <Footer />
+          </>
+        } />
 
-        {/* Admin routes (nested with layout) */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="stores" element={<StoreManagement />} />
-          <Route path="medicines" element={<MedicineCatalog />} />
-          <Route path="complaints" element={<ComplaintManagement />} />
-          <Route path="heatmap" element={<ShortageHeatmap />} />
-          <Route path="price-anomalies" element={<PriceAnomalyReport />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
+        {/* Admin routes (no public header/footer) */}
+        {/* <Route path="/admin" element={<AdminLayout />}> */}
+          {/* <Route index element={<Navigate to="/admin/dashboard" replace />} /> */}
+          {/* <Route path="dashboard" element={<Dashboard />} /> */}
+          {/* ... other admin routes */}
+        {/* </Route> */}
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
