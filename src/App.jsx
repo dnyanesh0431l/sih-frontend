@@ -2,45 +2,53 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicHeader from './components/public/PublicHeader';
 import Footer from './components/public/Footer';
 import LandingPage from './pages/public/LandingPage';
-import Login from './pages/Login';          // we'll create later
-// import Register from './pages/Register';    // we'll create later
-// import AdminLayout from './pages/admin/AdminLayout';
-// import Dashboard from './pages/admin/Dashboard';
-// ... other admin imports
+import Login from './pages/Login';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminComplaints from './pages/admin/AdminComplaints';
+import AdminReports from './pages/admin/AdminReports';
+import AdminStores from './pages/admin/AdminStores';
+
+// Simple guard
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) return <Navigate to="/login" replace />;
+  return children;
+};
+
+// Role guard – only ADMIN
+const AdminRoute = ({ children }) => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (user.role !== 'ADMIN') return <Navigate to="/" replace />;
+  return children;
+};
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes with header/footer */}
-        <Route path="/" element={
-          <>
-            <PublicHeader />
-            <LandingPage />
-            <Footer />
-          </>
-        } />
-        <Route path="/login" element={
-          <>
-            <PublicHeader />
-            <Login />
-            <Footer />
-          </>
-        } />
-        <Route path="/register" element={
-          <>
-            <PublicHeader />
-            {/* <Register /> */}
-            <Footer />
-          </>
-        } />
+        {/* Public */}
+        <Route path="/" element={<><PublicHeader /><LandingPage /><Footer /></>} />
+        <Route path="/login" element={<><PublicHeader /><Login /><Footer /></>} />
+        <Route path="/register" element={<><PublicHeader /><div>Register</div><Footer /></>} />
 
-        {/* Admin routes (no public header/footer) */}
-        {/* <Route path="/admin" element={<AdminLayout />}> */}
-          {/* <Route index element={<Navigate to="/admin/dashboard" replace />} /> */}
-          {/* <Route path="dashboard" element={<Dashboard />} /> */}
-          {/* ... other admin routes */}
-        {/* </Route> */}
+        {/* Admin – wrapped in both guards */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="complaints" element={<AdminComplaints />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="stores" element={<AdminStores />} />
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
