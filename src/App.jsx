@@ -1,25 +1,27 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import PublicHeader from './components/public/PublicHeader';
-import Footer from './components/public/Footer';
-import LandingPage from './pages/public/LandingPage';
-import Login from './pages/Login';
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminComplaints from './pages/admin/AdminComplaints';
-import AdminReports from './pages/admin/AdminReports';
-import AdminStores from './pages/admin/AdminStores';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Footer from "./components/public/Footer";
+import PublicHeader from "./components/public/PublicHeader";
+import AdminComplaints from "./pages/admin/AdminComplaints";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminStores from "./pages/admin/AdminStores";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import PatientDashboard from "./pages/patient/PatientDashboard";
+import LandingPage from "./pages/public/LandingPage";
+import StoreDashboard from "./pages/store/StoreDashboard";
 
-// Simple guard
+// Guards
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (!token) return <Navigate to="/login" replace />;
   return children;
 };
 
-// Role guard – only ADMIN
-const AdminRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user.role !== 'ADMIN') return <Navigate to="/" replace />;
+const RoleGuard = ({ role, children }) => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  if (user.role !== role) return <Navigate to="/" replace />;
   return children;
 };
 
@@ -28,18 +30,45 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public */}
-        <Route path="/" element={<><PublicHeader /><LandingPage /><Footer /></>} />
-        <Route path="/login" element={<><PublicHeader /><Login /><Footer /></>} />
-        <Route path="/register" element={<><PublicHeader /><div>Register</div><Footer /></>} />
+        <Route
+          path="/"
+          element={
+            <>
+              <PublicHeader />
+              <LandingPage />
+              <Footer />
+            </>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <>
+              <PublicHeader />
+              <Login />
+              <Footer />
+            </>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <>
+              <PublicHeader />
+              <Register />
+              <Footer />
+            </>
+          }
+        />
 
-        {/* Admin – wrapped in both guards */}
+        {/* Admin */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute>
-              <AdminRoute>
+              <RoleGuard role="ADMIN">
                 <AdminLayout />
-              </AdminRoute>
+              </RoleGuard>
             </ProtectedRoute>
           }
         >
@@ -50,7 +79,30 @@ function App() {
           <Route path="stores" element={<AdminStores />} />
         </Route>
 
-        {/* Fallback */}
+        {/* Store Owner */}
+        <Route
+          path="/store/dashboard"
+          element={
+            <ProtectedRoute>
+              <RoleGuard role="STORE_OWNER">
+                <StoreDashboard />
+              </RoleGuard>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Patient */}
+        <Route
+          path="/patient/dashboard"
+          element={
+            <ProtectedRoute>
+              <RoleGuard role="PATIENT">
+                <PatientDashboard />
+              </RoleGuard>
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
